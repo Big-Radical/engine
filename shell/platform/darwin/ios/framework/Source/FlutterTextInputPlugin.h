@@ -25,6 +25,17 @@
 
 @end
 
+/** A point at which the cursor has been requested at. */
+@interface FlutterTextCursor : NSObject
+
+@property(nonatomic, readonly) CGPoint point;
+@property(nonatomic) Boolean didMove;
+
++ (instancetype)cursorWithPoint:(CGPoint)point;
+- (instancetype)initWithPoint:(CGPoint)point;
+
+@end
+
 /** An indexed position in the buffer of a Flutter text editing widget. */
 @interface FlutterTextPosition : UITextPosition
 

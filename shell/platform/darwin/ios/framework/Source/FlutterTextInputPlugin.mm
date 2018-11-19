@@ -85,6 +85,24 @@ static UIReturnKeyType ToUIReturnKeyType(NSString* inputType) {
   return UIReturnKeyDefault;
 }
 
+#pragma mark - FlutterTextCursor
+
+@implementation FlutterTextCursor
+
++ (instancetype)cursorWithPoint:(CGPoint)point {
+  return [[[FlutterTextCursor alloc] initWithPoint:point] autorelease];
+}
+
+- (instancetype)initWithPoint:(CGPoint)point {
+  self = [super init];
+  if (self) {
+    _point = point;
+  }
+  return self;
+}
+
+@end
+
 #pragma mark - FlutterTextPosition
 
 @implementation FlutterTextPosition
@@ -165,6 +183,7 @@ static UIReturnKeyType ToUIReturnKeyType(NSString* inputType) {
   int _textInputClient;
   const char* _selectionAffinity;
   FlutterTextRange* _selectedTextRange;
+  FlutterTextCursor* _textCursor;
 }
 
 @synthesize tokenizer = _tokenizer;
@@ -545,7 +564,7 @@ static UIReturnKeyType ToUIReturnKeyType(NSString* inputType) {
 }
 
 - (UITextPosition*)closestPositionToPoint:(CGPoint)point {
-  // TODO(cbracken) Implement.
+  _textCursor = [FlutterTextCursor cursorWithPoint:point];
   NSUInteger currentIndex = ((FlutterTextPosition*)_selectedTextRange.start).index;
   return [FlutterTextPosition positionWithIndex:currentIndex];
 }
@@ -578,6 +597,16 @@ static UIReturnKeyType ToUIReturnKeyType(NSString* inputType) {
     composingBase = ((FlutterTextPosition*)self.markedTextRange.start).index;
     composingExtent = ((FlutterTextPosition*)self.markedTextRange.end).index;
   }
+
+  CGFloat cursorX = 0;
+  CGFloat cursorY = 0;
+  bool cursorMoved = false;
+  if (_textCursor != nil) {
+    cursorX = _textCursor.point.x;
+    cursorY = _textCursor.point.y;
+    cursorMoved = true;
+  }
+    
   [_textInputDelegate updateEditingClient:_textInputClient
                                 withState:@{
                                   @"selectionBase" : @(selectionBase),
@@ -586,8 +615,13 @@ static UIReturnKeyType ToUIReturnKeyType(NSString* inputType) {
                                   @"selectionIsDirectional" : @(false),
                                   @"composingBase" : @(composingBase),
                                   @"composingExtent" : @(composingExtent),
+                                  @"cursorX" : @(cursorX),
+                                  @"cursorY" : @(cursorY),
+                                  @"cursorMoved": @(cursorMoved),
                                   @"text" : [NSString stringWithString:self.text],
                                 }];
+  [_textCursor release];
+  _textCursor = nil;
 }
 
 - (BOOL)hasText {
