@@ -606,7 +606,7 @@ static UIReturnKeyType ToUIReturnKeyType(NSString* inputType) {
     cursorY = _textCursor.point.y;
     cursorMoved = true;
   }
-    
+
   [_textInputDelegate updateEditingClient:_textInputClient
                                 withState:@{
                                   @"selectionBase" : @(selectionBase),
@@ -620,7 +620,6 @@ static UIReturnKeyType ToUIReturnKeyType(NSString* inputType) {
                                   @"cursorMoved": @(cursorMoved),
                                   @"text" : [NSString stringWithString:self.text],
                                 }];
-  [_textCursor release];
   _textCursor = nil;
 }
 
